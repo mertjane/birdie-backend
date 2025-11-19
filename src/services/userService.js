@@ -1,4 +1,6 @@
-import pool from "../config/database.js"; // Add .js extension
+import pool from "../config/database.js";
+
+
 
 class UserService {
   // Create new user

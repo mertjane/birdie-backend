@@ -1,12 +1,12 @@
-import userService from "../services/userService.js"; // Add .js extension
-import pool from "../config/database.js"; // Add .js extension for healthCheck
+import userService from "../services/userService.js"; 
+import pool from "../config/database.js"; 
 
 export class UserController {
 
   // Create user
   async createUser(req, res) {
     try {
-      console.log('📝 Creating user:', req.body.email);
+      console.log('Creating user:', req.body.email);
 
       // Check if user already exists
       const existingUser = await userService.getUserByFirebaseUid(req.body.firebase_uid);
@@ -19,7 +19,7 @@ export class UserController {
 
       const user = await userService.createUser(req.body);
       
-      console.log('✅ User created successfully:', user.user_id);
+      console.log('User created successfully:', user.user_id);
 
       res.status(201).json({
         success: true,
@@ -28,7 +28,7 @@ export class UserController {
       });
 
     } catch (error) {
-      console.error('❌ Error creating user:', error);
+      console.error('Error creating user:', error);
       
       res.status(500).json({
         success: false,
@@ -42,7 +42,7 @@ export class UserController {
   async getUserByFirebaseUid(req, res) {
     try {
       const { firebase_uid } = req.params;
-      console.log('🔍 Fetching user:', firebase_uid);
+      console.log('Fetching user:', firebase_uid);
 
       const user = await userService.getUserByFirebaseUid(firebase_uid);
 
@@ -61,7 +61,7 @@ export class UserController {
       });
 
     } catch (error) {
-      console.error('❌ Error fetching user:', error);
+      console.error('Error fetching user:', error);
       res.status(500).json({
         success: false,
         message: 'Failed to fetch user',
@@ -74,7 +74,7 @@ export class UserController {
   async updateUser(req, res) {
     try {
       const { firebase_uid } = req.params;
-      console.log('✏️ Updating user:', firebase_uid);
+      console.log('Updating user:', firebase_uid);
 
       const user = await userService.updateUser(firebase_uid, req.body);
 

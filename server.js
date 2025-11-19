@@ -3,6 +3,8 @@ import cors from "cors";
 import dotenv from "dotenv"
 
 import userRoutes from "./src/routes/users.js";
+import userInterestRoutes from "./src/routes/userInterest.js";
+import userPhotosRoutes from "./src/routes/photos.js";
 
 dotenv.config();
 
@@ -25,6 +27,8 @@ app.use((req, res, next) => {
 
 // Routes
 app.use('/api/users', userRoutes);
+app.use('/api/user-interests', userInterestRoutes);
+app.use("/api/photos", userPhotosRoutes);
 
 // Root endpoint
 app.get('/', (req, res) => {
