@@ -78,6 +78,50 @@ class PhotoService {
     }
   }
 
+
+  /**
+   * Get primary photo for a user
+   */
+  async getPrimaryPhoto(userId) {
+    try {
+      const query = `
+        SELECT 
+          photo_id,
+          user_id,
+          photo_url,
+          upload_order,
+          is_primary,
+          uploaded_at
+        FROM user_photos 
+        WHERE user_id = $1 AND is_primary = true
+      `;
+      
+      const result = await pool.query(query, [userId]);
+      
+      // If a primary photo is found, return it
+      if (result.rows.length > 0) {
+        return result.rows[0];
+      }
+
+      // OPTIONAL FALLBACK: 
+      // If no photo is marked as primary, return the first uploaded photo (order 1)
+      // If you don't want this fallback, just return null
+      const fallbackQuery = `
+        SELECT * FROM user_photos 
+        WHERE user_id = $1 
+        ORDER BY upload_order ASC 
+        LIMIT 1
+      `;
+      const fallbackResult = await pool.query(fallbackQuery, [userId]);
+      
+      return fallbackResult.rows[0] || null;
+
+    } catch (error) {
+      console.error('Error fetching primary photo:', error);
+      throw new Error(`Failed to fetch primary photo for user ${userId}`);
+    }
+  }
+
   /**
    * Add a new photo for a user (with Cloudinary upload)
    */

@@ -5,6 +5,7 @@ import dotenv from "dotenv"
 import userRoutes from "./src/routes/users.js";
 import userInterestRoutes from "./src/routes/userInterest.js";
 import userPhotosRoutes from "./src/routes/photos.js";
+import homeRoutes from './src/routes/home.js';
 
 dotenv.config();
 
@@ -29,6 +30,8 @@ app.use((req, res, next) => {
 app.use('/api/users', userRoutes);
 app.use('/api/user-interests', userInterestRoutes);
 app.use("/api/photos", userPhotosRoutes);
+app.use('/api/home', homeRoutes);
+
 
 // Root endpoint
 app.get('/', (req, res) => {
