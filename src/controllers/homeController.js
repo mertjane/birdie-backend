@@ -1,5 +1,5 @@
 import feedService from "../services/feedService.js";
-import swipeService from "../services/SwipeService.js";
+import swipeService from "../services/swipeService.js";
 import notificationService from "../services/notificationService.js";
 
 
