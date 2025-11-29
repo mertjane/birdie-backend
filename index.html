@@ -1,0 +1,777 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Birdie App - Network & API Integration Architecture</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            padding: 30px;
+            min-height: 100vh;
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 16px;
+            padding: 40px;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+        }
+
+        h1 {
+            text-align: center;
+            color: #2d3748;
+            margin-bottom: 10px;
+            font-size: 2.5em;
+        }
+
+        .subtitle {
+            text-align: center;
+            color: #718096;
+            margin-bottom: 40px;
+            font-size: 1.1em;
+        }
+
+        .architecture-diagram {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: 100px;
+            margin-bottom: 50px;
+            position: relative;
+        }
+
+        .layer {
+            flex: 1;
+            background: #f7fafc;
+            border-radius: 12px;
+            padding: 25px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+            transition: all 0.3s;
+            position: relative;
+        }
+
+        .layer:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 8px 24px rgba(0,0,0,0.2);
+        }
+
+        .layer-header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 15px;
+            border-radius: 8px;
+            text-align: center;
+            font-weight: bold;
+            font-size: 1.2em;
+            margin-bottom: 20px;
+        }
+
+        .layer-icon {
+            text-align: center;
+            font-size: 3em;
+            margin-bottom: 15px;
+        }
+
+        .component {
+            background: white;
+            border: 2px solid #e2e8f0;
+            border-radius: 8px;
+            padding: 15px;
+            margin-bottom: 12px;
+            transition: all 0.3s;
+        }
+
+        .component:hover {
+            border-color: #667eea;
+            box-shadow: 0 2px 8px rgba(102, 126, 234, 0.2);
+        }
+
+        .component-title {
+            font-weight: bold;
+            color: #2d3748;
+            margin-bottom: 5px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .component-desc {
+            font-size: 0.85em;
+            color: #718096;
+            line-height: 1.4;
+        }
+
+        .code-tag {
+            background: #f0f4f8;
+            color: #667eea;
+            padding: 2px 8px;
+            border-radius: 4px;
+            font-family: 'Courier New', monospace;
+            font-size: 0.85em;
+        }
+
+        .arrow {
+            position: absolute;
+            width: 60px;
+            height: 3px;
+            background: #667eea;
+            top: 50%;
+            transform: translateY(-50%);
+        }
+
+        .arrow::after {
+            content: '';
+            position: absolute;
+            right: -10px;
+            top: -5px;
+            width: 0;
+            height: 0;
+            border-left: 12px solid #667eea;
+            border-top: 6px solid transparent;
+            border-bottom: 6px solid transparent;
+        }
+
+        .arrow-right {
+            right: -70px;
+        }
+
+        .arrow-label {
+            position: absolute;
+            top: -25px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: #667eea;
+            color: white;
+            padding: 4px 12px;
+            border-radius: 4px;
+            font-size: 0.75em;
+            white-space: nowrap;
+            font-weight: 600;
+        }
+
+        .flow-section {
+            margin-top: 50px;
+            background: #f7fafc;
+            border-radius: 12px;
+            padding: 30px;
+        }
+
+        .flow-title {
+            font-size: 1.8em;
+            color: #2d3748;
+            margin-bottom: 25px;
+            text-align: center;
+        }
+
+        .flow-steps {
+            display: flex;
+            justify-content: space-between;
+            gap: 20px;
+            flex-wrap: wrap;
+        }
+
+        .flow-step {
+            flex: 1;
+            min-width: 200px;
+            background: white;
+            border-radius: 8px;
+            padding: 20px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+            position: relative;
+        }
+
+        .step-number {
+            position: absolute;
+            top: -15px;
+            left: 20px;
+            background: #667eea;
+            color: white;
+            width: 35px;
+            height: 35px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            font-size: 1.1em;
+        }
+
+        .step-title {
+            margin-top: 15px;
+            font-weight: bold;
+            color: #2d3748;
+            margin-bottom: 10px;
+        }
+
+        .step-desc {
+            font-size: 0.9em;
+            color: #718096;
+            line-height: 1.5;
+        }
+
+        .tech-stack {
+            margin-top: 40px;
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 20px;
+        }
+
+        .tech-card {
+            background: white;
+            border: 2px solid #e2e8f0;
+            border-radius: 8px;
+            padding: 20px;
+            transition: all 0.3s;
+        }
+
+        .tech-card:hover {
+            border-color: #667eea;
+            transform: translateY(-3px);
+            box-shadow: 0 4px 12px rgba(102, 126, 234, 0.2);
+        }
+
+        .tech-header {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin-bottom: 12px;
+        }
+
+        .tech-icon {
+            font-size: 2em;
+        }
+
+        .tech-name {
+            font-weight: bold;
+            color: #2d3748;
+            font-size: 1.1em;
+        }
+
+        .tech-features {
+            list-style: none;
+            padding-left: 0;
+        }
+
+        .tech-features li {
+            padding: 6px 0;
+            color: #718096;
+            font-size: 0.9em;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .tech-features li::before {
+            content: '✓';
+            color: #48bb78;
+            font-weight: bold;
+        }
+
+        .endpoint-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 20px;
+            background: white;
+            border-radius: 8px;
+            overflow: hidden;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+        }
+
+        .endpoint-table th {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 15px;
+            text-align: left;
+            font-weight: 600;
+        }
+
+        .endpoint-table td {
+            padding: 12px 15px;
+            border-bottom: 1px solid #e2e8f0;
+        }
+
+        .endpoint-table tr:last-child td {
+            border-bottom: none;
+        }
+
+        .endpoint-table tr:hover {
+            background: #f7fafc;
+        }
+
+        .method-badge {
+            display: inline-block;
+            padding: 4px 10px;
+            border-radius: 4px;
+            font-weight: bold;
+            font-size: 0.85em;
+            color: white;
+        }
+
+        .get { background: #48bb78; }
+        .post { background: #4299e1; }
+        .put { background: #ed8936; }
+        .delete { background: #f56565; }
+
+        @media (max-width: 1024px) {
+            .architecture-diagram {
+                flex-direction: column;
+            }
+            
+            .arrow {
+                display: none;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🚀 Birdie Dating App</h1>
+        <p class="subtitle">Network Architecture & API Integration</p>
+
+        <!-- Main Architecture Diagram -->
+        <div class="architecture-diagram">
+            <!-- Android Client Layer -->
+            <div class="layer">
+                <div class="layer-header">
+                    Android Client
+                </div>
+                <div class="layer-icon">📱</div>
+                
+                <div class="component">
+                    <div class="component-title">
+                        🎯 UI Layer (Activities)
+                    </div>
+                    <div class="component-desc">
+                        User interactions, forms, and displays
+                    </div>
+                </div>
+
+                <div class="component">
+                    <div class="component-title">
+                        🔧 Repository Layer
+                    </div>
+                    <div class="component-desc">
+                        Business logic and data management<br>
+                        <span class="code-tag">UserRepository.java</span>
+                    </div>
+                </div>
+
+                <div class="component">
+                    <div class="component-title">
+                        🌐 Retrofit Client
+                    </div>
+                    <div class="component-desc">
+                        HTTP client singleton instance<br>
+                        <span class="code-tag">RetrofitClient.java</span>
+                    </div>
+                </div>
+
+                <div class="component">
+                    <div class="component-title">
+                        ⚙️ API Service
+                    </div>
+                    <div class="component-desc">
+                        Interface defining all endpoints<br>
+                        <span class="code-tag">ApiService.java</span>
+                    </div>
+                </div>
+
+                <div class="component">
+                    <div class="component-title">
+                        📦 OkHttp Client
+                    </div>
+                    <div class="component-desc">
+                        Underlying HTTP engine with interceptors
+                    </div>
+                </div>
+
+                <div class="arrow arrow-right">
+                    <div class="arrow-label">HTTP/HTTPS</div>
+                </div>
+            </div>
+
+            <!-- Network Layer -->
+            <div class="layer">
+                <div class="layer-header">
+                    Network Layer
+                </div>
+                <div class="layer-icon">🌐</div>
+
+                <div class="component">
+                    <div class="component-title">
+                        📡 Connection Management
+                    </div>
+                    <div class="component-desc">
+                        Connection pooling, timeout handling<br>
+                        Connect: 30s | Read: 30s | Write: 30s
+                    </div>
+                </div>
+
+                <div class="component">
+                    <div class="component-title">
+                        🔒 Security Layer
+                    </div>
+                    <div class="component-desc">
+                        HTTPS encryption, certificate validation
+                    </div>
+                </div>
+
+                <div class="component">
+                    <div class="component-title">
+                        📊 Logging Interceptor
+                    </div>
+                    <div class="component-desc">
+                        Request/response logging for debugging
+                    </div>
+                </div>
+
+                <div class="component">
+                    <div class="component-title">
+                        🔄 JSON Serialization
+                    </div>
+                    <div class="component-desc">
+                        Gson converter for Java ↔ JSON<br>
+                        Automatic object mapping
+                    </div>
+                </div>
+
+                <div class="arrow arrow-right">
+                    <div class="arrow-label">REST API</div>
+                </div>
+            </div>
+
+            <!-- Backend Server -->
+            <div class="layer">
+                <div class="layer-header">
+                    Backend Server
+                </div>
+                <div class="layer-icon">⚡</div>
+
+                <div class="component">
+                    <div class="component-title">
+                        🟢 Node.js Runtime
+                    </div>
+                    <div class="component-desc">
+                        JavaScript runtime environment
+                    </div>
+                </div>
+
+                <div class="component">
+                    <div class="component-title">
+                        🚂 Express.js Framework
+                    </div>
+                    <div class="component-desc">
+                        Web application framework<br>
+                        Route handling and middleware
+                    </div>
+                </div>
+
+                <div class="component">
+                    <div class="component-title">
+                        📋 API Routes
+                    </div>
+                    <div class="component-desc">
+                        <span class="code-tag">/api/users</span><br>
+                        <span class="code-tag">/api/photos</span><br>
+                        <span class="code-tag">/api/user-interests</span><br>
+                        <span class="code-tag">/api/home</span>
+                    </div>
+                </div>
+
+                <div class="component">
+                    <div class="component-title">
+                        🗃️ Database Layer
+                    </div>
+                    <div class="component-desc">
+                        PostgreSQL connection pool<br>
+                        Query execution and transactions
+                    </div>
+                </div>
+
+                <div class="arrow arrow-right">
+                    <div class="arrow-label">SQL</div>
+                </div>
+            </div>
+
+            <!-- Database -->
+            <div class="layer">
+                <div class="layer-header">
+                    Database
+                </div>
+                <div class="layer-icon">🗄️</div>
+
+                <div class="component">
+                    <div class="component-title">
+                        🐘 PostgreSQL
+                    </div>
+                    <div class="component-desc">
+                        Relational database management system
+                    </div>
+                </div>
+
+                <div class="component">
+                    <div class="component-title">
+                        📊 Tables
+                    </div>
+                    <div class="component-desc">
+                        • Users<br>
+                        • User Photos<br>
+                        • User Interests<br>
+                        • Swipes<br>
+                        • Matches<br>
+                        • Messages<br>
+                        • Notifications<br>
+                        • Daily Swipe Limits
+                    </div>
+                </div>
+
+                <div class="component">
+                    <div class="component-title">
+                        🔗 Relationships
+                    </div>
+                    <div class="component-desc">
+                        Foreign keys, constraints, cascades
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Request Flow -->
+        <div class="flow-section">
+            <h2 class="flow-title">📨 API Request-Response Flow</h2>
+            <div class="flow-steps">
+                <div class="flow-step">
+                    <div class="step-number">1</div>
+                    <div class="step-title">User Action</div>
+                    <div class="step-desc">
+                        User interacts with the Android app (e.g., registers, uploads photo)
+                    </div>
+                </div>
+
+                <div class="flow-step">
+                    <div class="step-number">2</div>
+                    <div class="step-title">Repository Call</div>
+                    <div class="step-desc">
+                        Activity/Fragment calls repository method with callback
+                    </div>
+                </div>
+
+                <div class="flow-step">
+                    <div class="step-number">3</div>
+                    <div class="step-title">Retrofit Request</div>
+                    <div class="step-desc">
+                        Retrofit creates HTTP request and serializes Java object to JSON
+                    </div>
+                </div>
+
+                <div class="flow-step">
+                    <div class="step-number">4</div>
+                    <div class="step-title">Network Call</div>
+                    <div class="step-desc">
+                        OkHttp sends request over network on background thread
+                    </div>
+                </div>
+
+                <div class="flow-step">
+                    <div class="step-number">5</div>
+                    <div class="step-title">Server Processing</div>
+                    <div class="step-desc">
+                        Express.js routes request, processes business logic, queries database
+                    </div>
+                </div>
+
+                <div class="flow-step">
+                    <div class="step-number">6</div>
+                    <div class="step-title">JSON Response</div>
+                    <div class="step-desc">
+                        Server sends JSON response with data or error message
+                    </div>
+                </div>
+
+                <div class="flow-step">
+                    <div class="step-number">7</div>
+                    <div class="step-title">Deserialization</div>
+                    <div class="step-desc">
+                        Gson converts JSON back to Java objects automatically
+                    </div>
+                </div>
+
+                <div class="flow-step">
+                    <div class="step-number">8</div>
+                    <div class="step-title">UI Update</div>
+                    <div class="step-desc">
+                        Callback delivers result to UI thread, activity updates interface
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Technology Stack -->
+        <div class="flow-section">
+            <h2 class="flow-title">🛠️ Technology Stack</h2>
+            <div class="tech-stack">
+                <div class="tech-card">
+                    <div class="tech-header">
+                        <span class="tech-icon">🔷</span>
+                        <span class="tech-name">Retrofit 2</span>
+                    </div>
+                    <ul class="tech-features">
+                        <li>Type-safe HTTP client</li>
+                        <li>Declarative API definitions</li>
+                        <li>Automatic serialization</li>
+                        <li>Built-in async support</li>
+                        <li>RxJava/Coroutines support</li>
+                    </ul>
+                </div>
+
+                <div class="tech-card">
+                    <div class="tech-header">
+                        <span class="tech-icon">🔶</span>
+                        <span class="tech-name">OkHttp 4</span>
+                    </div>
+                    <ul class="tech-features">
+                        <li>HTTP/2 and HTTP/3 support</li>
+                        <li>Connection pooling</li>
+                        <li>GZIP compression</li>
+                        <li>Response caching</li>
+                        <li>Request interceptors</li>
+                    </ul>
+                </div>
+
+                <div class="tech-card">
+                    <div class="tech-header">
+                        <span class="tech-icon">📦</span>
+                        <span class="tech-name">Gson</span>
+                    </div>
+                    <ul class="tech-features">
+                        <li>JSON serialization</li>
+                        <li>Object mapping</li>
+                        <li>Custom type adapters</li>
+                        <li>Null-safe parsing</li>
+                        <li>Generic type support</li>
+                    </ul>
+                </div>
+
+                <div class="tech-card">
+                    <div class="tech-header">
+                        <span class="tech-icon">🟢</span>
+                        <span class="tech-name">Node.js + Express</span>
+                    </div>
+                    <ul class="tech-features">
+                        <li>RESTful API design</li>
+                        <li>Middleware support</li>
+                        <li>JSON body parsing</li>
+                        <li>Error handling</li>
+                        <li>Route management</li>
+                    </ul>
+                </div>
+
+                <div class="tech-card">
+                    <div class="tech-header">
+                        <span class="tech-icon">🐘</span>
+                        <span class="tech-name">PostgreSQL</span>
+                    </div>
+                    <ul class="tech-features">
+                        <li>ACID compliance</li>
+                        <li>Complex queries</li>
+                        <li>Foreign key constraints</li>
+                        <li>Transaction support</li>
+                        <li>JSON data type</li>
+                    </ul>
+                </div>
+
+                <div class="tech-card">
+                    <div class="tech-header">
+                        <span class="tech-icon">🔥</span>
+                        <span class="tech-name">Firebase Auth</span>
+                    </div>
+                    <ul class="tech-features">
+                        <li>User authentication</li>
+                        <li>OAuth providers</li>
+                        <li>Token management</li>
+                        <li>Secure UID generation</li>
+                        <li>Session handling</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+
+        <!-- API Endpoints Table -->
+        <div class="flow-section">
+            <h2 class="flow-title">🔗 API Endpoints</h2>
+            <table class="endpoint-table">
+                <thead>
+                    <tr>
+                        <th>Method</th>
+                        <th>Endpoint</th>
+                        <th>Description</th>
+                        <th>Request Body</th>
+                        <th>Response</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td><span class="method-badge post">POST</span></td>
+                        <td><code>/api/users</code></td>
+                        <td>Register new user</td>
+                        <td>User object</td>
+                        <td>User with ID</td>
+                    </tr>
+                    <tr>
+                        <td><span class="method-badge get">GET</span></td>
+                        <td><code>/api/users/{userId}</code></td>
+                        <td>Get user by ID</td>
+                        <td>None</td>
+                        <td>User object</td>
+                    </tr>
+                    <tr>
+                        <td><span class="method-badge put">PUT</span></td>
+                        <td><code>/api/users/{userId}</code></td>
+                        <td>Update user profile</td>
+                        <td>Updated User</td>
+                        <td>Updated User</td>
+                    </tr>
+                    <tr>
+                        <td><span class="method-badge post">POST</span></td>
+                        <td><code>/api/photos</code></td>
+                        <td>Upload user photo</td>
+                        <td>Multipart form</td>
+                        <td>Photo URL</td>
+                    </tr>
+                    <tr>
+                        <td><span class="method-badge get">GET</span></td>
+                        <td><code>/api/photos/{userId}</code></td>
+                        <td>Get user photos</td>
+                        <td>None</td>
+                        <td>Photo array</td>
+                    </tr>
+                    <tr>
+                        <td><span class="method-badge post">POST</span></td>
+                        <td><code>/api/user-interests</code></td>
+                        <td>Add user interests</td>
+                        <td>Interest array</td>
+                        <td>Success status</td>
+                    </tr>
+                    <tr>
+                        <td><span class="method-badge get">GET</span></td>
+                        <td><code>/api/home/{userId}</code></td>
+                        <td>Get user feed</td>
+                        <td>None</td>
+                        <td>User profiles</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+</body>
+</html>
